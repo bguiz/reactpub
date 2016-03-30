@@ -30,7 +30,7 @@ function getWebpackConfig(options) {
 
     output: {
       filename: 'bundle.js',
-      path: path.normalize(cwd, 'dist'),
+      path: path.resolve(cwd, './dist'),
       // We want it to load both in browsers and in NodeJs
       libraryTarget: 'umd',
     },
