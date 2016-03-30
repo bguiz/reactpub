@@ -14,7 +14,10 @@
     "publish",
     "static",
     "site",
-    "ssg"
+    "ssg",
+    "isomorphic",
+    "universal",
+    "webpack"
   ],
   "author": "bguiz",
   "license": "GPL-3.0",
