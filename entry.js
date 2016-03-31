@@ -51,25 +51,30 @@ function getEntry(options) {
         return callback(err || 'Missing renderProps');
       }
       let post;
-      if (!!options.routeMetadata &&
-        !!options.routeMetadata.props &&
-        !!options.routeMetadata.props.routes &&
-        !!options.routeMetadata.props.aliases) {
-        let path = options.routeMetadata.props.aliases[locals.path] || locals.path;
-        post = options.routeMetadata.props.routes[path] || {};
+      let props =
+        (!!options.routeMetadata &&
+         options.routeMetadata.props);
+      if (!!props &&
+          !!props.routes &&
+          !!props.aliases) {
+        let path = props.aliases[locals.path] || locals.path;
+        post = props.routes[path];
       }
       post = post || {};
       renderProps = Object.assign(renderProps, post);
+      let title = !!post.meta && post.meta.title;
 
       let rendered = ReactDomServer.renderToStaticMarkup(
         <RouterContext {...renderProps} />);
+
       let html = templateHtml({
+        title: title || locals.title || '',
         rendered: rendered,
-        title: (!!post.meta && post.meta.title) || locals.title,
         path: locals.path,
         assets: locals.assets,
       });
       console.log(`HTML generated for ${renderProps.location.pathname}`);
+
       callback(undefined, html);
     });
   }
