@@ -1,6 +1,6 @@
 {
   "name": "reactpub",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Publish Websites using ReactJs",
   "main": "index.js",
   "scripts": {
@@ -34,6 +34,5 @@
     "static-site-generator-webpack-plugin": "^2.0.1",
     "webpack": "^1.12.14",
     "webpack-dev-server": "^1.14.1"
-
   }
 }
