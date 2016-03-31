@@ -17,13 +17,39 @@ which **does just that and nothing else**.
 
 BYO markdown conversion, templating, and the like!
 
-## Usage
+## Develop & deploy
+
+- Run `web-pack-dev-server` to serve a build locally
+- Run `webpack` to build something you can upload to your host
+
+## Initial set up
 
 Install `reactpub`:
 
 ```bash
 npm install save-dev reactpub
 ```
+
+Create/ edit `data/data.js`:
+
+```javascript
+module.exports = {
+  routes: ['/'],
+  props: {
+    routes: {
+      '/': {
+        meta: {
+          title: 'Home page',
+        },
+      }
+    },
+    aliases: {},
+  },
+};
+```
+
+If you have a directory of markdown files, etc,
+you will most likely want to programmaticaqlly generate this file.
 
 Create/ edit `webpack.config.js`:
 
@@ -32,13 +58,7 @@ Create/ edit `webpack.config.js`:
 
 const webpack = require('webpack');
 const reactpubWebpack = require('reactpub/webpack');
-
-const data = {
-  routes: ['/'],
-  props: {
-    title: 'Reactpub is sweet!',
-  },
-};
+const data = require('./data/data.js');
 
 let webpackConfig = reactpubWebpack({
   data,
@@ -62,14 +82,15 @@ Create/ edit `app/entry.js`:
 
 const reactpubEntry = require('reactpub/entry');
 
-// Routes defined using react-router@2.0.x
 const routes = require('./routes.jsx');
+const data = require('./data/data.js');
 
 let reactOnClient = true;
 
 let renderServer = reactpubEntry({
   reactOnClient,
   routes,
+  routeMetadata: data,
 });
 
 module.exports = renderServer;
@@ -77,6 +98,8 @@ module.exports = renderServer;
 
 In an `app` folder, create `entry.js`.
 Define your React `routes`, require them, and pass them as an option.
+
+**`reactOnClient`**
 
 The `reactOnClient` flag simply indicates whether
 the output bundle, containing the ReactJs application,
@@ -98,13 +121,13 @@ except without the server rendering anything on the fly.
 Instead all of the pages are pre-rendered (static site generation),
 and served on a static site.
 
-Development:
+**`routes`**
 
-- Run `web-pack-dev-server` to serve a build locally
+Routes defined using `react-router@2.0.x`.
 
-Deployment:
+**`routeMetadata`**
 
-- Run `webpack` to build something you can upload to your host
+The meta data describing the routes in `data/data.js` file we wrote earlier.
 
 ## Author
 

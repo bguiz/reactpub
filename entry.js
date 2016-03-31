@@ -50,11 +50,22 @@ function getEntry(options) {
       if (!!err || !renderProps) {
         return callback(err || 'Missing renderProps');
       }
+      let post;
+      if (!!options.routeMetadata &&
+        !!options.routeMetadata.props &&
+        !!options.routeMetadata.props.routes &&
+        !!options.routeMetadata.props.aliases) {
+        let path = options.routeMetadata.props.aliases[locals.path] || locals.path;
+        post = options.routeMetadata.props.routes[path] || {};
+      }
+      post = post || {};
+      renderProps = Object.assign(renderProps, post);
+
       let rendered = ReactDomServer.renderToStaticMarkup(
         <RouterContext {...renderProps} />);
       let html = templateHtml({
         rendered: rendered,
-        title: locals.title,
+        title: (!!post.meta && post.meta.title) || locals.title,
         path: locals.path,
         assets: locals.assets,
       });
@@ -63,22 +74,22 @@ function getEntry(options) {
     });
   }
 
-  function templateHtml(props) {
+  function templateHtml(locals) {
     let scriptTags = '';
     if (reactOnClient) {
-      for (var key in props.assets) {
-        if (props.assets.hasOwnProperty(key)) {
-          scriptTags += `\n<script src="/${props.assets[key]}"></script>`;
+      for (var key in locals.assets) {
+        if (locals.assets.hasOwnProperty(key)) {
+          scriptTags += `\n<script src="/${locals.assets[key]}"></script>`;
         }
       }
     }
     return `<!DOCTYPE html>
 <html id="html" class="html">
   <head>
-    <title>${props.title}</title>
+    <title>${locals.title}</title>
   </head>
   <body>
-    <div id="outlet" class="outlet">${props.rendered}</div>${scriptTags}
+    <div id="outlet" class="outlet">${locals.rendered}</div>${scriptTags}
   </body>
 </html>`;
   }

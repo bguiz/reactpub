@@ -12,8 +12,18 @@ function getWebpackConfig(options) {
   if (!data || !Array.isArray(data.routes) || data.routes.length < 1) {
     throw 'Must specify at least one route';
   }
-  if (!data.props || typeof data.props.title !== 'string') {
-    throw 'Must specify props.title';
+  if (!data.props.routes || Object.keys(data.props.routes).length < 1) {
+    throw 'Must specify props.routes';
+  }
+  if (!data.props.aliases) {
+    throw 'Must specify props.aliases';
+  }
+  if (data.routes.length <
+      (Object.keys(data.props.routes).length +
+        Object.keys(data.props.aliases).length)) {
+    throw `Numbers do not tally #routes (${data.routes.length}) should be at least
+#props.routes (${Object.keys(data.props.routes).length}) +
+#props.aliases (${Object.keys(data.props.aliases).length})`;
   }
 
   let cwd = process.cwd();
@@ -49,7 +59,10 @@ function getWebpackConfig(options) {
       // When compilation fails, do not publish
       new webpack.NoErrorsPlugin(),
 
-      new staticSiteGenPlugin('bundle.js', data.routes, data.props)
+      new staticSiteGenPlugin(
+        'bundle.js',
+        data.routes,
+        data.props)
     ],
   };
 
