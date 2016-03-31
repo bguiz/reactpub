@@ -5,6 +5,7 @@ const ReactDom = require('react-dom');
 const ReactDomServer = require('react-dom/server');
 const ReactRouter = require('react-router');
 const History = require('history');
+const Helmet = require('react-helmet');
 
 let Router = ReactRouter.Router;
 let RouterContext = ReactRouter.RouterContext;
@@ -13,7 +14,9 @@ module.exports = getEntry;
 
 function getEntry(options) {
   let reactOnClient =
-    (options.reactOnClient === 'undefined') ? true : options.reactOnClient;
+    (options.reactOnClient === 'undefined') ? true : !!options.reactOnClient;
+  let useHelmet =
+    (options.useHelmet === 'undefined') ? false : !!options.useHelmet;
   let routes = options.routes;
   if (!routes) {
     throw 'Routes are necessary';
@@ -66,12 +69,17 @@ function getEntry(options) {
 
       let rendered = ReactDomServer.renderToStaticMarkup(
         <RouterContext {...renderProps} />);
+      let helmet;
+      if (useHelmet) {
+        helmet = Helmet.rewind();
+      }
 
       let html = templateHtml({
         title: title || locals.title || '',
         rendered: rendered,
         path: locals.path,
         assets: locals.assets,
+        helmet,
       });
       console.log(`HTML generated for ${renderProps.location.pathname}`);
 
@@ -88,13 +96,24 @@ function getEntry(options) {
         }
       }
     }
+    let head = (useHelmet) ?
+      (`<head ${locals.helmet.htmlAttributes.toString()}>
+    <title>${locals.title}</title>
+    ${locals.helmet.meta.toString()}
+    ${locals.helmet.link.toString()}
+  </head>`) :
+      (`<head>
+    <title>${locals.title}</title>
+  </head>`);
+    // ${locals.helmet.title.toString()}
     return `<!DOCTYPE html>
 <html id="html" class="html">
-  <head>
-    <title>${locals.title}</title>
-  </head>
+  ${head}
   <body>
-    <div id="outlet" class="outlet">${locals.rendered}</div>${scriptTags}
+    <div id="outlet" class="outlet">
+      ${locals.rendered}
+    </div>
+    ${scriptTags}
   </body>
 </html>`;
   }
