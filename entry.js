@@ -17,6 +17,10 @@ function getEntry(options) {
     (options.reactOnClient === 'undefined') ? true : !!options.reactOnClient;
   let useHelmet =
     (options.useHelmet === 'undefined') ? false : !!options.useHelmet;
+  let additionalAssets = options.additionalAssets || {};
+  if (Object.keys(additionalAssets).length < 1) {
+    additionalAssets = {};
+  }
   let routes = options.routes;
   if (!routes) {
     throw 'Routes are necessary';
@@ -74,11 +78,12 @@ function getEntry(options) {
         helmet = Helmet.rewind();
       }
 
+      let assets = Object.assign(additionalAssets, locals.assets);
       let html = templateHtml({
         title: title || locals.title || '',
         rendered: rendered,
         path: locals.path,
-        assets: locals.assets,
+        assets,
         helmet,
       });
       console.log(`HTML generated for ${renderProps.location.pathname}`);
@@ -88,11 +93,18 @@ function getEntry(options) {
   }
 
   function templateHtml(locals) {
-    let scriptTags = '';
+    let assetTags = '';
     if (reactOnClient) {
       for (var key in locals.assets) {
         if (locals.assets.hasOwnProperty(key)) {
-          scriptTags += `\n<script src="/${locals.assets[key]}"></script>`;
+          var asset = locals.assets[key];
+          if (asset.match(/\.css$/)) {
+            assetTags += `\n<link rel="stylesheet" type="text/css" href="/${asset}">`;
+          }
+          else {
+            // default to <script> tag
+            assetTags += `\n<script src="/${asset}"></script>`;
+          }
         }
       }
     }
@@ -113,7 +125,7 @@ function getEntry(options) {
     <div id="outlet" class="outlet">
       ${locals.rendered}
     </div>
-    ${scriptTags}
+    ${assetTags}
   </body>
 </html>`;
   }
