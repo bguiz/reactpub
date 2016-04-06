@@ -111,11 +111,13 @@ function getEntry(options) {
     let head = (useHelmet) ?
       (`<head ${locals.helmet.htmlAttributes.toString()}>
     <title>${locals.title}</title>
+    <meta charset="utf-8" />
     ${locals.helmet.meta.toString()}
     ${locals.helmet.link.toString()}
   </head>`) :
       (`<head>
     <title>${locals.title}</title>
+    <meta charset="utf-8" />
   </head>`);
     // ${locals.helmet.title.toString()}
     return `<!DOCTYPE html>
