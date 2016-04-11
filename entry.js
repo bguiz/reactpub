@@ -5,7 +5,6 @@ const ReactDom = require('react-dom');
 const ReactDomServer = require('react-dom/server');
 const ReactRouter = require('react-router');
 const History = require('history');
-const Helmet = require('react-helmet');
 
 let Router = ReactRouter.Router;
 let RouterContext = ReactRouter.RouterContext;
@@ -14,9 +13,14 @@ module.exports = getEntry;
 
 function getEntry(options) {
   let reactOnClient =
-    (options.reactOnClient === 'undefined') ? true : !!options.reactOnClient;
-  let useHelmet =
-    (options.useHelmet === 'undefined') ? false : !!options.useHelmet;
+    (options.reactOnClient === 'undefined') ?
+      true :
+      !!options.reactOnClient;
+  let reactHelmet =
+    (options.reactHelmet === 'undefined' &&
+      typeof reactHelmet.rewind === 'function') ?
+      undefined :
+      options.reactHelmet;
   let additionalAssets = options.additionalAssets || {};
   if (Object.keys(additionalAssets).length < 1) {
     additionalAssets = {};
@@ -73,9 +77,14 @@ function getEntry(options) {
 
       let rendered = ReactDomServer.renderToStaticMarkup(
         <RouterContext {...renderProps} />);
-      let helmet;
-      if (useHelmet) {
-        helmet = Helmet.rewind();
+      let helmet = {
+        htmlAttributes: '',
+        title: '',
+        meta: '',
+        link: '',
+      };
+      if (!!reactHelmet) {
+        helmet = Object.assign(helmet, reactHelmet.rewind());
       }
 
       let assets = Object.assign(additionalAssets, locals.assets);
@@ -95,31 +104,32 @@ function getEntry(options) {
   function templateHtml(locals) {
     let assetTags = '';
     if (reactOnClient) {
-      for (var key in locals.assets) {
-        if (locals.assets.hasOwnProperty(key)) {
-          var asset = locals.assets[key];
-          if (asset.match(/\.css$/)) {
-            assetTags += `\n<link rel="stylesheet" type="text/css" href="/${asset}">`;
-          }
-          else {
-            // default to <script> tag
-            assetTags += `\n<script src="/${asset}"></script>`;
-          }
+      Object.keys(locals.assets).forEach((key) => {
+        var asset = locals.assets[key];
+        if (!asset.match(/^[a-z]+\:\/\//)) {
+          // if no protocol is specified, make the path root-relative
+          asset = `/${asset}`;
         }
-      }
+        if (asset.match(/\.css$/)) {
+          assetTags += `\n<link rel="stylesheet" type="text/css" href="${asset}">`;
+        }
+        else {
+          // default to <script> tag
+          assetTags += `\n<script type="text/javascript" src="${asset}"></script>`;
+        }
+      });
     }
-    let head = (useHelmet) ?
+    let head = (!!reactHelmet) ?
       (`<head ${locals.helmet.htmlAttributes.toString()}>
-    <title>${locals.title}</title>
-    <meta charset="utf-8" />
-    ${locals.helmet.meta.toString()}
-    ${locals.helmet.link.toString()}
-  </head>`) :
+  <meta charset="utf-8" />
+  ${locals.helmet.title.toString()}
+  ${locals.helmet.meta.toString()}
+  ${locals.helmet.link.toString()}
+</head>`) :
       (`<head>
-    <title>${locals.title}</title>
-    <meta charset="utf-8" />
-  </head>`);
-    // ${locals.helmet.title.toString()}
+  <meta charset="utf-8" />
+  <title>${locals.title}</title>
+</head>`);
     return `<!DOCTYPE html>
 <html id="html" class="html">
   ${head}
