@@ -36,7 +36,9 @@ function getWebpackConfig(options) {
 
     devtool: 'source-map',
 
-    entry: './app/entry.js',
+    entry: {
+      app: './app/entry.js',
+    },
 
     output: {
       filename: 'bundle.js',
@@ -55,10 +57,6 @@ function getWebpackConfig(options) {
     },
 
     plugins: [
-
-      // When compilation fails, do not publish
-      new webpack.NoErrorsPlugin(),
-
       new staticSiteGenPlugin(
         'bundle.js',
         data.routes,
