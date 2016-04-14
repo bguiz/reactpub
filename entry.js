@@ -12,15 +12,30 @@ let RouterContext = ReactRouter.RouterContext;
 module.exports = getEntry;
 
 function getEntry(options) {
+  // Validate and prepare options
   let reactOnClient =
     (options.reactOnClient === 'undefined') ?
       true :
       !!options.reactOnClient;
   let reactHelmet =
-    (options.reactHelmet === 'undefined' &&
-      typeof reactHelmet.rewind === 'function') ?
-      undefined :
-      options.reactHelmet;
+    (typeof options.reactHelmet === 'undefined' ||
+      typeof options.reactHelmet.rewind !== 'function') ?
+    undefined :
+    options.reactHelmet;
+  let reactGa =
+    (typeof options.reactGa === 'undefined' ||
+      typeof options.reactGa.pageview !== 'function') ?
+    undefined :
+    options.reactGa;
+  let reactGaOptions =
+    (typeof options.reactGaOptions === 'undefined' ||
+      typeof options.reactGaOptions.id !== 'string') ?
+    undefined :
+    options.reactGaOptions;
+  let routerOnUpdate =
+    (typeof options.routerOnUpdate !== 'function') ?
+    undefined :
+    options.routerOnUpdate;
   let additionalAssets = options.additionalAssets || {};
   if (Object.keys(additionalAssets).length < 1) {
     additionalAssets = {};
@@ -30,8 +45,21 @@ function getEntry(options) {
     throw 'Routes are necessary';
   }
 
-  if (reactOnClient && typeof document !== 'undefined') {
-    renderClient(); //Disabled for now
+  if (typeof document !== 'undefined') {
+    // Only intialise Google Analytics in browser,
+    // cannot do this when generating static files using server rendering
+    if (!!reactGa && !!reactGaOptions) {
+      reactGa.initialize(reactGaOptions.id, reactGaOptions.options);
+    }
+
+    // If running in a browser,
+    // and ECMAScript2015 is supported by this browser,
+    // let React "take over",
+    // making these static page into a single-page app (kind of)
+    if (reactOnClient &&
+      typeof Symbol !== 'undefined') {
+      renderClient();
+    }
   }
 
   return renderServer;
@@ -42,7 +70,10 @@ function getEntry(options) {
       { queryKey: false });
     var outlet = document.getElementById('outlet');
     ReactDom.render(
-      <Router history={history} routes={routes} />,
+      <Router
+        history={history}
+        routes={routes}
+        onUpdate={routerOnUpdate} />,
       outlet);
     console.log('ReactJs has taken over page rendering.');
   }
@@ -72,7 +103,9 @@ function getEntry(options) {
         post = props.routes[path];
       }
       post = post || {};
-      renderProps = Object.assign(renderProps, post);
+      renderProps = Object.assign(renderProps, post, {
+        onUpdate: routerOnUpdate,
+      });
       let title = !!post.meta && post.meta.title;
 
       let rendered = ReactDomServer.renderToStaticMarkup(
