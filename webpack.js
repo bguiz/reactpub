@@ -1,13 +1,12 @@
 'use strict';
 
-const path = require('path');
-
-const webpack = require('webpack');
-const staticSiteGenPlugin = require('static-site-generator-webpack-plugin');
-
 module.exports = getWebpackConfig;
 
 function getWebpackConfig(options) {
+  const path = require('path');
+
+  const staticSiteGenPlugin = require('static-site-generator-webpack-plugin');
+
   let data = options.data;
   if (!data || !Array.isArray(data.routes) || data.routes.length < 1) {
     throw 'Must specify at least one route';
@@ -51,7 +50,7 @@ function getWebpackConfig(options) {
       loaders: [
         {
           test: /\.jsx?$/,
-          loader: 'jsx',
+          loader: 'jsx-loader',
         }
       ],
     },
