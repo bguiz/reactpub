@@ -62,7 +62,7 @@ function generateDataImpl(posts, options) {
           date: post.header.__date_utc,
           tags: post.header.__tags,
           url: post.header.url,
-          urlAliases: [],
+          urlAliases: (post.header.urlAliases || []),
         };
         var out = {
           meta: Object.assign(post.meta, meta),
