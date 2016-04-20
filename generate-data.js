@@ -65,9 +65,11 @@ function generateDataImpl(posts, options) {
           urlAliases: [],
         };
         var out = {
-          meta: Object.assign(meta, post.meta),
+          meta: Object.assign(post.meta, meta),
           body: post.body,
         };
+        out.meta.__date_utc = undefined;
+        out.meta.__tags = undefined;
         return out;
       })
       .sort((a, b) => {
