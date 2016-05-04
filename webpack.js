@@ -48,10 +48,6 @@ function getWebpackConfig(options) {
 
     module: {
       loaders: [
-        {
-          test: /\.jsx?$/,
-          loader: 'jsx-loader',
-        }
       ],
     },
 
