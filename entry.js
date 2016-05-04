@@ -45,19 +45,11 @@ function getEntry(options) {
     throw 'Routes are necessary';
   }
 
-  if (typeof document !== 'undefined') {
-    // Only intialise Google Analytics in browser,
-    // cannot do this when generating static files using server rendering
-    if (!!reactGa && !!reactGaOptions) {
-      reactGa.initialize(reactGaOptions.id, reactGaOptions.options);
-    }
-
-    // If running in a browser,
-    // and ECMAScript2015 is supported by this browser,
-    // let React "take over",
-    // making these static page into a single-page app (kind of)
-    if (reactOnClient &&
-      typeof Symbol !== 'undefined') {
+  if (typeof document !== 'undefined' &&
+    typeof document.body !== 'undefined') {
+    // If running in a browser, let ReactJs "take over",
+    // turning these static pages into a single-page app (kind of)
+    if (reactOnClient) {
       renderClient();
     }
   }
@@ -65,6 +57,12 @@ function getEntry(options) {
   return renderServer;
 
   function renderClient() {
+    console.log('ReactJs will take over page rendering.');
+
+    if (!!reactGa && !!reactGaOptions) {
+      reactGa.initialize(reactGaOptions.id, reactGaOptions.options);
+    }
+
     let history = ReactRouter.useRouterHistory(
       History.createHistory)(
       { queryKey: false });
@@ -75,7 +73,6 @@ function getEntry(options) {
         routes={routes}
         onUpdate={routerOnUpdate} />,
       outlet);
-    console.log('ReactJs has taken over page rendering.');
   }
 
   function renderServer(locals, callback) {
@@ -99,8 +96,8 @@ function getEntry(options) {
       if (!!props &&
           !!props.routes &&
           !!props.aliases) {
-        let path = props.aliases[locals.path] || locals.path;
-        post = props.routes[path];
+        let postPath = props.aliases[locals.path] || locals.path;
+        post = props.routes[postPath];
       }
       post = post || {};
       renderProps = Object.assign(renderProps, post, {
@@ -122,14 +119,13 @@ function getEntry(options) {
 
       let assets = Object.assign(additionalAssets, locals.assets);
       let html = templateHtml({
-        title: title || locals.title || '',
+        title: (title || locals.title || ''),
         rendered: rendered,
         path: locals.path,
         assets,
         helmet,
       });
-      console.log(`HTML generated for ${renderProps.location.pathname}`);
-
+      console.log(`Static render: ${renderProps.location.pathname}`);
       callback(undefined, html);
     });
   }
