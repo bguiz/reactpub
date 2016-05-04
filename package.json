@@ -1,6 +1,6 @@
 {
   "name": "reactpub",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Publish Websites using ReactJs",
   "main": "index.js",
   "scripts": {},
