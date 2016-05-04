@@ -9,7 +9,7 @@ Provides a minimal wrapper around
 
 Using using these, it generates an output folder,
 ready for upload to a static file host,
-such as Github pages.
+(such as Github pages).
 
 This module is best suited for those who
 want a ReactJs based static site generation tool
@@ -19,8 +19,8 @@ BYO markdown conversion, templating, and the like!
 
 ## Develop & deploy
 
-- Run `web-pack-dev-server` to serve a build locally
-- Run `webpack` to build something you can upload to your host
+- Run `web-pack-dev-server` during development
+- Run `webpack` to build something ready to upload to a static file host
 
 ## Initial set up
 
@@ -49,7 +49,7 @@ module.exports = {
 ```
 
 If you have a directory of markdown files, etc,
-you will most likely want to programmaticaqlly generate this file.
+you will most likely want to programmatically generate this file.
 
 Create/ edit `webpack.config.js`:
 
@@ -115,11 +115,12 @@ instead React simply updates the DOM,
 as in a single page application.
 
 Terms used to describe this behaviour include
-*Isomorphic Javascript* and *Universal Javascript*.
-This is essentially the same thing,
-except without the server rendering anything on the fly.
-Instead all of the pages are pre-rendered (static site generation),
-and served on a static site.
+*Isomorphic Javascript* and *Universal Javascript*;
+which are essentially the same thing,
+except here you do not need a server to render things on the fly.
+Instead, all of the pages are pre-rendered -
+static site generation -
+ready to be served on a static file host.
 
 **`routes`**
 
