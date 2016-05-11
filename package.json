@@ -27,8 +27,8 @@
   "peerDependencies": {
     "find-posts": "^0.4.0",
     "history": "^2.0.1",
-    "react": "^0.14.8",
-    "react-dom": "^0.14.8",
+    "react": "^0.14.8 || ^15.0.0",
+    "react-dom": "^0.14.8 || ^15.0.0",
     "react-router": "^2.0.1",
     "static-site-generator-webpack-plugin": "^2.0.1",
     "webpack": "^1.12.14",
